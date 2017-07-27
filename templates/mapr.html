@@ -24,7 +24,7 @@
   <body>
     <a href="{{ signinout }}" class="btn btn-danger">Sign Out</a>
     <h2>Welcome to Mapr</h2>
-    <h4>Put your placebirth on the map</h4>
+    <h4>Move the marker to put your place of birth on the map</h4>
     <a href="/mapr-all">See all marks</a>
     <br>
     <div id="map"></div>
@@ -38,7 +38,9 @@
       </div>
     </div>
     <script>
-      let map, marker;
+      var map, marker;
+      // This is the entrypoint function, gets executed after the Google Maps api script
+      // is loaded, and it creates the map object and puts a marker on its center
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
           center: {lat: 16.5, lng: 11.44},
@@ -50,17 +52,23 @@
           position: getcenter(),
         });
       }
+      // Returns a dictionary representing the center coordinate of the map
       function getcenter() {
         return {'lat': map.center.lat(), 'lng': map.center.lng()};
       }
-      function getMarkerCenter() {
+      // Returns the position of the marker
+      function getMarkerPosition() {
         return marker.position;
       }
+      // Makes a POST request to save the location on the backend
       function sendPosition() {
         $.post('postlocation', {
-          location: JSON.stringify(getMarkerCenter()),
+          location: JSON.stringify(getMarkerPosition()),
         })
         .then(function() {
+          // If we get here then the data was sent to the backend successfully,
+          // let's show a success alert, and tell the user that they can navigate
+          // to the other page to see all the pins on the map
           address = location.protocol + '//' + location.host + '/mapr-all';
           alert('Nice! You can see all the places at ' + address);
         });

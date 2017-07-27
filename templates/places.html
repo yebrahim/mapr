@@ -28,14 +28,21 @@
     <div id="map"></div>
     <br>
     <script>
-      let map, markers;
+      var map;
+      // This is the entrypoint function, gets executed after the Google Maps api script
+      // is loaded, and it creates the map object and puts a marker on its center
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
           center: {lat: 16.5, lng: 11.44},
           zoom: 2
         });
+
+        // Make a GET request to the backend to get the list of locations saved in Datastore
         $.ajax('getlocations')
           .then(function(locations) {
+            // If we get to this point, we received data successfully from the backend. We
+            // need to first turn it into an object (a list in this case), then loop
+            // on its elements and create a marker on the map
             locations = JSON.parse(locations);
             locations.forEach(l => {
               l = {'lat': parseFloat(l.lat), 'lng': parseFloat(l.lng)};

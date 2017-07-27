@@ -19,6 +19,7 @@ jinja_environment = jinja2.Environment(
 
 
 class IndexPage(webapp2.RequestHandler):
+    """Only used if the user is signed out"""
     def get(self):
         user = users.get_current_user()
 
@@ -32,6 +33,7 @@ class IndexPage(webapp2.RequestHandler):
 
 
 class MaprPage(webapp2.RequestHandler):
+    """Page takes the user's birthplace on the map, sends it to backend"""
     def get(self):
         user = users.get_current_user()
 
@@ -42,6 +44,7 @@ class MaprPage(webapp2.RequestHandler):
 
 
 class MaprAllPage(webapp2.RequestHandler):
+    """Page shows the all the birthplace entries in the database, shown on the map"""
     def get(self):
         user = users.get_current_user()
 
@@ -53,14 +56,21 @@ class MaprAllPage(webapp2.RequestHandler):
 
 class LocationHandler(webapp2.RequestHandler):
     def post(self):
+        """POST request handler, saves the new location into the database.
+        A user can only have one row in the database, so multiple entries
+        will overwrite each other."""
         user = users.get_current_user()
+        # Make sure the user is signed in, because we need their identity
+        # to save it along with the coordinates
         if user:
+            # Get the request data
             location = self.request.get('location')
-            logging.info('got location: ' + location)
             location = json.loads(location)
             lat = str(location['lat'])
             lng = str(location['lng'])
             k = Birthplace.query(Birthplace.name==user.nickname()).get()
+            # Let's first check if this user already exists in the database
+            # If they do, get that entry (its key) and modify it
             if k:
                 instance = k
                 instance.lat = lat
@@ -70,8 +80,10 @@ class LocationHandler(webapp2.RequestHandler):
             instance.put()
 
     def get(self):
+        """GET request returns all location entries in the database."""
         q = Birthplace.query()
         l = q.fetch()
+        # Turn the list from a list of Birthplace objects into list of dicts
         result = [i.to_dict() for i in l]
         self.response.out.write(json.dumps(result))
 
