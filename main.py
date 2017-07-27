@@ -12,7 +12,6 @@ class Birthplace(ndb.Model):
     lat = ndb.StringProperty()
     lng = ndb.StringProperty()
     name = ndb.StringProperty()
-    birthdate = ndb.DateProperty()
 
 
 jinja_environment = jinja2.Environment(
